@@ -78,6 +78,17 @@ config TOUCHSCREEN_MTK_GT1151
 
 	  To compile this dirver as a module, choose M here: the
 	  module will be called.
+	  
+config TOUCHSCREEN_MTK_ATMEL_MXT336
+	bool " ATMEL_MXT336 for Mediatek package"
+	default n
+	help
+	  Say Y here if you have GT1151 touch panel.
+
+	  If unsure, say N.
+
+	  To compile this dirver as a module, choose M here: the
+	  module will be called.
 
 source "drivers/input/touchscreen/mediatek/GT1151/Kconfig"
 
@@ -91,6 +102,16 @@ config TOUCHSCREEN_MTK_GT9XXTB_HN_NEW
 	  If unsure, say N.
 
 source "drivers/input/touchscreen/mediatek/gt9xxtb_hn_new/Kconfig"
+
+config TOUCHSCREEN_MTK_AH1887
+	bool "AH188 for Mediatek package"
+	default n
+	help
+	  Say Y here if you have AH188.
+	  If unsure, say N.
+	  To compile this dirver as a module, choose M here: the module will be called.
+
+source "drivers/input/touchscreen/mediatek/AH1887/Kconfig"
 
 config TOUCHSCREEN_MTK_NT36xxx
 	bool "NT36xxx for Mediatek package"
