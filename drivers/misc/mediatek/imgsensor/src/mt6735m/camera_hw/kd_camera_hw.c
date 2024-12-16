@@ -43,8 +43,8 @@
 /* GPIO Pin control*/
 struct platform_device *cam_plt_dev = NULL;
 struct pinctrl *camctrl = NULL;
-struct pinctrl_state *cam0_pnd_h = NULL;
-struct pinctrl_state *cam0_pnd_l = NULL;
+//struct pinctrl_state *cam0_pnd_h = NULL;
+//struct pinctrl_state *cam0_pnd_l = NULL;
 struct pinctrl_state *cam0_rst_h = NULL;
 struct pinctrl_state *cam0_rst_l = NULL;
 struct pinctrl_state *cam1_pnd_h = NULL;
@@ -66,7 +66,8 @@ int mtkcam_gpio_init(struct platform_device *pdev)
 		return -1;
 	}
 	/*Cam0 Power/Rst Ping initialization */
-	cam0_pnd_h = pinctrl_lookup_state(camctrl, "cam0_pnd1");
+
+/*	cam0_pnd_h = pinctrl_lookup_state(camctrl, "cam0_pnd1");
 	if (IS_ERR(cam0_pnd_h)) {
 		ret = PTR_ERR(cam0_pnd_h);
 		pr_debug("%s : pinctrl err, cam0_pnd_h\n", __func__);
@@ -77,6 +78,7 @@ int mtkcam_gpio_init(struct platform_device *pdev)
 		ret = PTR_ERR(cam0_pnd_l);
 		pr_debug("%s : pinctrl err, cam0_pnd_l\n", __func__);
 	}
+*/
 
 
 	cam0_rst_h = pinctrl_lookup_state(camctrl, "cam0_rst1");
@@ -154,10 +156,12 @@ int mtkcam_gpio_set(int PinIdx, int PwrType, int Val)
 		break;
 	case CAMPDN:
 		if (PinIdx == 0) {
+		/*
 			if (Val == 0)
 				pinctrl_select_state(camctrl, cam0_pnd_l);
 			else
 				pinctrl_select_state(camctrl, cam0_pnd_h);
+*/
 		} else {
 			if (Val == 0)
 				pinctrl_select_state(camctrl, cam1_pnd_l);
@@ -452,7 +456,7 @@ int kdCISModulePowerOn(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *curr
 			mtkcam_gpio_set(pinSetIdx, CAMRST, pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_ON]);
        
 	}// add by wgw hi552 end
-	else if ((currSensorName && (0 == strcmp(SENSOR_DRVNAME_HI846_MIPI_RAW, currSensorName))))
+	else if ((currSensorName && (0 == strcmp(SENSOR_DRVNAME_S5K3H7YX_MIPI_RAW, currSensorName))))
 	{
 		printk("hi553 power on\n");
 		if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
@@ -468,7 +472,7 @@ int kdCISModulePowerOn(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *curr
 		}
 		else
 		{
-			mtkcam_gpio_set(0, CAMPDN,pinSet[0][IDX_PS_CMPDN + IDX_PS_OFF]);    
+		//	mtkcam_gpio_set(0, CAMPDN,pinSet[0][IDX_PS_CMPDN + IDX_PS_OFF]);    
 			mtkcam_gpio_set(0, CAMRST,pinSet[0][IDX_PS_CMRST + IDX_PS_OFF]);
 		}
 
@@ -506,8 +510,8 @@ int kdCISModulePowerOn(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *curr
 		}
 
 		/* enable active sensor */
-		if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
-			mtkcam_gpio_set(pinSetIdx, CAMPDN, pinSet[pinSetIdx][IDX_PS_CMPDN + IDX_PS_ON]);
+		//if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
+	//		mtkcam_gpio_set(pinSetIdx, CAMPDN, pinSet[pinSetIdx][IDX_PS_CMPDN + IDX_PS_ON]);
 		if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMRST])
 			mtkcam_gpio_set(pinSetIdx, CAMRST, pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_ON]);
 
@@ -1143,10 +1147,10 @@ int kdCISModulePowerOn(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx, char *curr
 		}
 		
 	}
-	else if ((currSensorName && (0 == strcmp(SENSOR_DRVNAME_HI846_MIPI_RAW, currSensorName))))
+	else if ((currSensorName && (0 == strcmp(SENSOR_DRVNAME_S5K3H7YX_MIPI_RAW, currSensorName))))
 	{
-		if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
-			mtkcam_gpio_set(pinSetIdx, CAMPDN, pinSet[pinSetIdx][IDX_PS_CMPDN + IDX_PS_OFF]);
+	//	if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
+		//	mtkcam_gpio_set(pinSetIdx, CAMPDN, pinSet[pinSetIdx][IDX_PS_CMPDN + IDX_PS_OFF]);
 
 		if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMRST])
 			mtkcam_gpio_set(pinSetIdx, CAMRST, pinSet[pinSetIdx][IDX_PS_CMRST + IDX_PS_OFF]);			
