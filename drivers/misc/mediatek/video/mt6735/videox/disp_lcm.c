@@ -1,8 +1,15 @@
-// SPDX-License-Identifier: GPL-2.0
 /*
-* Copyright (C) 2018 MediaTek Inc.
-*
-*/
+ * Copyright (C) 2015 MediaTek Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
 
 #include <linux/slab.h>
 
@@ -13,15 +20,19 @@
 #include "disp_drv_platform.h"
 #include "ddp_manager.h"
 #include "mtkfb.h"
+/*include for pio*/
+#include <mt-plat/mt_gpio.h>
+#include <mach/gpio_const.h>
 
 #include "disp_lcm.h"
 
 #if defined(MTK_LCM_DEVICE_TREE_SUPPORT)
 #include <linux/of.h>
 #endif
-#if defined(CONFIG_MTK_HARDWAREINFO)
-struct LCM_DRIVER  *lcm_drv_name =NULL;
-#endif
+
+#define GPIO_LCM_ID         (GPIO80 | 0x80000000)
+#define GPIO_LCM_ID_M_GPIO  GPIO_MODE_00
+
 
 int _lcm_count(void)
 {
@@ -887,6 +898,76 @@ void load_lcm_resources_from_DT(struct LCM_DRIVER *lcm_drv)
 }
 #endif
 
+#include <linux/string.h> 
+#include <linux/wait.h> 
+#include <linux/platform_device.h> 
+#include <linux/gpio.h> 
+#include <linux/pinctrl/consumer.h> 
+#include <linux/of_gpio.h> 
+#include <linux/gpio.h> 
+#include <asm-generic/gpio.h> 
+static unsigned int GPIO_READ_ID_PIN;
+
+
+int lcm_get_readID_pin(void)
+{
+	static struct device_node *node;
+
+	int ret;
+	int temp_id=0;
+
+	node = of_find_compatible_node(NULL, NULL, "mediatek,lcm_mode");
+
+	GPIO_READ_ID_PIN = of_get_named_gpio(node, "lcm_read_id_gpio", 0);
+
+	ret = gpio_request(GPIO_READ_ID_PIN, "lcm_read_id_gpio");
+	if (ret < 0)
+	{
+		pr_err("[LCM][ERROR] 1Unable to request GPIO_READ_ID_PIN\n");
+		//error,free,request
+		gpio_free(GPIO_READ_ID_PIN);
+		ret = gpio_request(GPIO_READ_ID_PIN, "lcm_read_id_gpio");
+		if (ret < 0){
+			pr_err("[LCM][ERROR] 2Unable to request GPIO_READ_ID_PIN Twice\n");//add log,two error
+		}
+		else{
+			pr_err("[LCM][OK] 3Request GPIO_READ_ID_PIN Twice OK\n");//add log , two ok
+			gpio_direction_input(GPIO_READ_ID_PIN);
+			temp_id=gpio_get_value(GPIO_READ_ID_PIN);
+		}
+
+	}
+	else
+	{
+		pr_err("4[LCM][OK] Request GPIO_READ_ID_PIN ONCE OK\n");
+		gpio_direction_input(GPIO_READ_ID_PIN);
+		temp_id=gpio_get_value(GPIO_READ_ID_PIN);
+	}
+return temp_id;
+}
+
+static int lcm_proc_open_show (struct seq_file* m, void* data)
+{
+    char temp[35] = {0};
+    int cnt = 0;
+    if(mt_get_gpio_in(GPIO_LCM_ID)==1)
+          cnt = sprintf(temp, "LCM[yushun]otm9608_qhd_dsi_cmd\n");
+    else
+          cnt = sprintf(temp, "LCM[xinli]otm9608_qhd_dsi_cmd\n");
+    seq_printf(m, "%s\n", temp);
+    return 0;
+
+}
+static int lcm_proc_open (struct inode* inode, struct file* file) 
+{
+    return single_open(file, lcm_proc_open_show, inode->i_private);
+}
+static const struct file_operations lcm_info_fops = {
+    .open = lcm_proc_open,
+    .read = seq_read,
+};
+
+
 disp_lcm_handle *disp_lcm_probe(char *plcm_name, enum LCM_INTERFACE_ID lcm_id, int is_lcm_inited)
 {
 	int lcmindex = 0;
@@ -975,9 +1056,21 @@ disp_lcm_handle *disp_lcm_probe(char *plcm_name, enum LCM_INTERFACE_ID lcm_id, i
 		DISPERR("FATAL ERROR!!!No LCM Driver defined\n");
 		return NULL;
 	}
-#if defined(CONFIG_MTK_HARDWAREINFO)
-	lcm_drv_name = lcm_drv;
-#endif	
+	
+	
+//LC--zwp--add--start--20150610  for lcm support dev_info
+#ifdef SLT_DEVINFO_LCM
+	lcm_devinfo_init();
+//LC--zbl--add--start--20150610
+	if(proc_create("lcm_info", 0444, NULL, &lcm_info_fops) == NULL)
+	{
+                printk("create_proc_entry  failed\n");
+		return -1;
+        }
+//LC--zbl--add--end--20150610
+#endif
+//LC--zwp--add--end--20150610
+
 	plcm = kzalloc(sizeof(uint8_t *) * sizeof(disp_lcm_handle), GFP_KERNEL);
 	lcm_param = kzalloc(sizeof(uint8_t *) * sizeof(struct LCM_PARAMS), GFP_KERNEL);
 	if (plcm && lcm_param) {
@@ -1350,3 +1443,4 @@ int disp_lcm_set_cmd(disp_lcm_handle *plcm, void *handle, int *lcm_cmd, unsigned
 	DISPERR("lcm_drv is null\n");
 	return -1;
 }
+
