@@ -96,6 +96,9 @@ extern void fan5405_set_otg_pl(u32 val);
 extern void fan5405_set_otg_en(u32 val);
 extern u32 fan5405_config_interface(u8 RegNum, u8 val, u8 MASK, u8 SHIFT);
 #endif
+#ifdef CONFIG_MTK_BQ24261_SUPPORT
+extern void bq24261_set_en_boost(unsigned int val);
+#endif
 
 #ifndef CONFIG_MTK_CLKMGR
 extern struct clk *musb_clk;

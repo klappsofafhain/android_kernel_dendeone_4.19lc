@@ -1154,7 +1154,7 @@ PMU_STATUS BAT_BatteryFullAction(void)
 		BMT_status.bat_in_recharging_state = KAL_TRUE;
 		BMT_status.bat_charging_state = CHR_CC;
 #if CONFIG_MTK_GAUGE_VERSION == 20
-		battery_meter_reset();
+		//battery_meter_reset();
 #endif
 		mtk_pep20_set_to_check_chr_type(true);
 		mtk_pep_set_to_check_chr_type(true);

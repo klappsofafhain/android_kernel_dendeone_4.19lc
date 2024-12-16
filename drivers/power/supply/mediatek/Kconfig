@@ -72,6 +72,16 @@ config MTK_BQ24196_SUPPORT
 	  It depends on config MTK_SMART_BATTERY
 	  and config MTK_SWCHR_SUPPORT
 	  Set to Yes if BQ24196 is used.
+	  
+config MTK_BQ24261_SUPPORT
+	bool "MediaTek Battery driver for TI BQ24261"
+	default n
+	help
+	  BQ24196 charger IC support
+	  This is to enable MediaTek supports to BQ24261.
+	  It depends on config MTK_SMART_BATTERY
+	  and config MTK_SWCHR_SUPPORT
+	  Set to Yes if BQ24261 is used.
 
 
 config MTK_BQ24296_SUPPORT
